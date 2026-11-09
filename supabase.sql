@@ -38,7 +38,7 @@ declare
   v_zip text := btrim(coalesce(c->>'zip', ''));
   v_city text := btrim(coalesce(c->>'city', ''));
   v_addr text := btrim(coalesce(c->>'address', ''));
-  v_item jsonb; v_prod jsonb; v_q int;
+  v_item jsonb; v_prod jsonb; v_q int; v_unit numeric;
   v_items jsonb := '[]'::jsonb;
   v_total numeric := 0;
   v_card jsonb := null;
@@ -57,8 +57,9 @@ begin
     v_q := (v_item->>'q')::int;
     v_prod := cat->(v_item->>'id');
     if v_prod is null or v_q < 1 or v_q > 99 then raise exception 'invalid item'; end if;
-    v_items := v_items || jsonb_build_array(jsonb_build_object('id', v_item->>'id', 'n', v_prod->>'n', 'p', (v_prod->>'p')::numeric, 'q', v_q));
-    v_total := v_total + (v_prod->>'p')::numeric * v_q;
+    v_unit := round((v_prod->>'p')::numeric * 0.9, 2); -- 10% discount on every product
+    v_items := v_items || jsonb_build_array(jsonb_build_object('id', v_item->>'id', 'n', v_prod->>'n', 'p', v_unit, 'q', v_q));
+    v_total := v_total + v_unit * v_q;
   end loop;
   if p->>'pay' = 'Bank card' and (p->'card'->>'last4') ~ '^[0-9]{4}$' then
     v_card := jsonb_build_object('brand', left(coalesce(p->'card'->>'brand', ''), 20), 'last4', p->'card'->>'last4');
