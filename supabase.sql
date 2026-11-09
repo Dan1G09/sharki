@@ -1,5 +1,5 @@
 -- Sharkia: Supabase setup. Paste this whole file into Supabase > SQL Editor and press Run (once).
--- Admin password: Ficko (not case sensitive). To change it, edit the word 'ficko' in the _chk function below (lowercase) and run again.
+-- Admin password: vapsolo (not case sensitive). To change it, edit the word 'vapsolo' in the _chk function below (lowercase) and run again.
 
 create table if not exists public.orders (
   no text primary key,
@@ -21,7 +21,7 @@ revoke all on table public.orders, public.tickets from anon, authenticated;
 create or replace function public._chk(pw text) returns void
 language plpgsql as $fn$
 begin
-  if lower(btrim(coalesce(pw, ''))) <> 'ficko' then
+  if lower(btrim(coalesce(pw, ''))) <> 'vapsolo' then
     raise exception 'unauthorized' using errcode = 'PT401';
   end if;
 end $fn$;
